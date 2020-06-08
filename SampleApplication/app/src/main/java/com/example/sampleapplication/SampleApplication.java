@@ -12,6 +12,8 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.sdklibrary.SdkLibraryManager;
+
 public class SampleApplication extends Application {
     private Activity mActivity;
     private BroadcastReceiver mBroadcastReceiver;
@@ -26,7 +28,7 @@ public class SampleApplication extends Application {
                     @Override
                     public void run() {
                         Log.i("Anand", "isMainThread : " + (Looper.getMainLooper().getThread() == Thread.currentThread()));
-                        new SampleDialog(mActivity).show();
+                        SdkLibraryManager.launch(mActivity);
                     }
                 }, 10000);
             }
