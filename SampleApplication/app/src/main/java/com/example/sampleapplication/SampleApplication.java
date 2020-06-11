@@ -12,6 +12,7 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.sdklibrary.IActivitySpanProvider;
 import com.example.sdklibrary.SdkLibraryManager;
 
 public class SampleApplication extends Application {
@@ -28,7 +29,7 @@ public class SampleApplication extends Application {
                     @Override
                     public void run() {
                         Log.i("Anand", "isMainThread : " + (Looper.getMainLooper().getThread() == Thread.currentThread()));
-                        SdkLibraryManager.launch(mActivity);
+                        SdkLibraryManager.launch((IActivitySpanProvider) mActivity);
                     }
                 }, 10000);
             }

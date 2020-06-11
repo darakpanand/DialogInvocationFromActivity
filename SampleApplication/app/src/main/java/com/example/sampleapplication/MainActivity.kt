@@ -1,6 +1,8 @@
 package com.example.sampleapplication
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -10,8 +12,24 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 import kotlinx.android.synthetic.main.activity_main.*
 import com.example.sampleapplication.SampleApplication
+import com.example.sdklibrary.IActivitySpanProvider
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IActivitySpanProvider {
+    override fun getActivityContext(): Context {
+        return this
+    }
+
+    override fun getActivityViewHeight(): Int {
+        return -1
+    }
+
+    override fun getActivityViewWidth(): Int {
+        return -1
+    }
+
+    override fun getActivityViewTopPoint(): Point {
+        return Point(0,0)
+    }
 
     override fun onResume() {
         super.onResume()
