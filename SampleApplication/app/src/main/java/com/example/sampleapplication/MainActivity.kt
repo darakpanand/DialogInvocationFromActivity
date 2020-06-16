@@ -1,26 +1,51 @@
 package com.example.sampleapplication
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
+import android.graphics.Rect
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-
-import kotlinx.android.synthetic.main.activity_main.*
-import com.example.sampleapplication.SampleApplication
 import com.example.sdklibrary.IActivitySpanProvider
+import com.google.android.material.snackbar.Snackbar
+import com.microsoft.device.display.DisplayMask
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), IActivitySpanProvider {
-    override fun getActivityContext(): Context {
+    override fun getActivityContext(): Activity {
         return this
     }
 
     override fun getActivityViewHeight(): Int {
         return -1
+    }
+
+    override fun getHinge(): Rect {
+        val displayMask: DisplayMask = DisplayMask.fromResourcesRect(this)
+        val boundings: List<Rect> = displayMask.getBoundingRectsForRotation(getRotation())
+        return if (boundings.size == 0) {
+            Rect(0, 0, 0, 0)
+        } else boundings[0]
+    }
+
+    /**
+     * Get the device's rotation.
+     *
+     * @return Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180 or Surface.ROTATION_270
+     */
+    fun getRotation(): Int {
+        val wm =
+            this.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        var rotation = 0
+        if (wm != null) {
+            rotation = wm.defaultDisplay.rotation
+        }
+        return rotation
     }
 
     override fun getActivityViewWidth(): Int {
