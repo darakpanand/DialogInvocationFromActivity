@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -71,7 +72,9 @@ public class ConstraintDialog extends Dialog {
             // Shrink empty view. If constraint is not set, then its size will be (0,0).
             constraintSet.clear(R.id.dual_screen_empty_view);
         }
-        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        Point size = new Point();
+        spanProvider.getActivityContext().getWindowManager().getDefaultDisplay().getSize(size);
+        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, (int)(size.y * 0.75f));
         final ConstraintLayout dualScreenLayout = view.findViewById(R.id.dual_screen_layout);
         dualScreenLayout.setConstraintSet(constraintSet);
     }
