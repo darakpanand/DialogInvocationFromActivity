@@ -60,16 +60,16 @@ public class ConstraintDialog extends Dialog {
     private void onBackPressed(@NonNull IActivitySpanProvider spanProvider) {
         mContentLayout.removeAllViewsInLayout();
         displayStack.pop();
-        LayoutInflater.from(spanProvider.getActivityContext().getBaseContext()).inflate(displayStack.peek(), mContentLayout);
+        if (displayStack.isEmpty()) {
+            ConstraintDialog.this.dismiss();
+        } else {
+            LayoutInflater.from(spanProvider.getActivityContext().getBaseContext()).inflate(displayStack.peek(), mContentLayout);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        if (displayStack.isEmpty()) {
-            ConstraintDialog.this.dismiss();
-        } else {
-            onBackPressed(mSpanProvider);
-        }
+        onBackPressed(mSpanProvider);
     }
 
     private void adjustLayoutForDualScreenActivity(IActivitySpanProvider spanProvider, View view) {
