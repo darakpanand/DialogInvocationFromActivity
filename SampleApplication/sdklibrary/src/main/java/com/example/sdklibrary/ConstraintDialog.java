@@ -2,7 +2,10 @@ package com.example.sdklibrary;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -15,17 +18,58 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import java.util.Stack;
 
 public class ConstraintDialog extends Dialog {
-    public ConstraintDialog(@NonNull IActivitySpanProvider spanProvider) {
+    static final String UPDATE_VIEW_INTENT = "com.action.update.view.intent";
+    static final String UPDATE_VIEW_RESOURCE_ID = "com.action.update.view.resource_id";
+    private BroadcastReceiver mBroadcastReceiver;
+    private IActivitySpanProvider mSpanProvider;
+    private  RelativeLayout mContentLayout;
+    private Stack<Integer> displayStack = new Stack<>();
+
+    public ConstraintDialog(@NonNull final IActivitySpanProvider spanProvider) {
         super(spanProvider.getActivityContext());
+        mSpanProvider = spanProvider;
         View view = View.inflate(spanProvider.getActivityContext(), R.layout.dual_screen_layout, null);
         this.setContentView(view);
 
         adjustLayoutForDualScreenActivity(spanProvider, view);
-        final RelativeLayout contentLayout = view.findViewById(R.id.dual_screen_content);
-        LayoutInflater.from(spanProvider.getActivityContext().getBaseContext()).inflate(R.layout.dialog_layout, contentLayout);
+        mContentLayout = view.findViewById(R.id.dual_screen_content);
+        addView(spanProvider, R.layout.dialog_layout);
+        mBroadcastReceiver  = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                    int resourceid = intent.getIntExtra(UPDATE_VIEW_RESOURCE_ID, R.id.dual_screen_content);
+                    addView(spanProvider, resourceid);
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(UPDATE_VIEW_INTENT);
+        LocalBroadcastManager.getInstance(spanProvider.getActivityContext()).registerReceiver(mBroadcastReceiver, intentFilter);
+    }
 
+    private void addView(@NonNull IActivitySpanProvider spanProvider, int resourceId) {
+        mContentLayout.removeAllViewsInLayout();
+        LayoutInflater.from(spanProvider.getActivityContext().getBaseContext()).inflate(resourceId, mContentLayout);
+        displayStack.add(resourceId);
+    }
+
+    private void onBackPressed(@NonNull IActivitySpanProvider spanProvider) {
+        mContentLayout.removeAllViewsInLayout();
+        displayStack.pop();
+        LayoutInflater.from(spanProvider.getActivityContext().getBaseContext()).inflate(displayStack.peek(), mContentLayout);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (displayStack.isEmpty()) {
+            ConstraintDialog.this.dismiss();
+        } else {
+            onBackPressed(mSpanProvider);
+        }
     }
 
     private void adjustLayoutForDualScreenActivity(IActivitySpanProvider spanProvider, View view) {
